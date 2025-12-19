@@ -21,6 +21,12 @@ public class CreateOrderRequest {
     @Valid
     private List<OrderItemRequest> items;
 
+    @NotNull(message = "Payment information is required")
+    @Valid
+    private PaymentInfo paymentInfo;
+
+    private String notes; // Optional notes field
+
     public CreateOrderRequest() {
     }
 
@@ -52,6 +58,22 @@ public class CreateOrderRequest {
 
     public void setItems(List<OrderItemRequest> items) {
         this.items = items;
+    }
+
+    public PaymentInfo getPaymentInfo() {
+        return paymentInfo;
+    }
+
+    public void setPaymentInfo(PaymentInfo paymentInfo) {
+        this.paymentInfo = paymentInfo;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     /**

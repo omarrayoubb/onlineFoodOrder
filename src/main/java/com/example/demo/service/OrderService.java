@@ -2,9 +2,12 @@ package com.example.demo.service;
 
 import com.example.demo.builder.OrderBuilder;
 import com.example.demo.dto.CreateOrderRequest;
+import com.example.demo.dto.PaymentInfo;
 import com.example.demo.entity.*;
+import com.example.demo.factory.PaymentStrategyFactory;
 import com.example.demo.repository.FoodItemRepository;
 import com.example.demo.repository.OrderRepository;
+import com.example.demo.strategy.PaymentStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +24,16 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final FoodItemRepository foodItemRepository;
     private final PriceCalculationService priceCalculationService;
+    private final PaymentStrategyFactory paymentStrategyFactory;
 
     public OrderService(OrderRepository orderRepository,
             FoodItemRepository foodItemRepository,
-            PriceCalculationService priceCalculationService) {
+            PriceCalculationService priceCalculationService,
+            PaymentStrategyFactory paymentStrategyFactory) {
         this.orderRepository = orderRepository;
         this.foodItemRepository = foodItemRepository;
         this.priceCalculationService = priceCalculationService;
+        this.paymentStrategyFactory = paymentStrategyFactory;
     }
 
     /**
@@ -67,16 +73,24 @@ public class OrderService {
      * @param restaurant      The restaurant the order is from
      * @param deliveryAddress The delivery address
      * @param orderItems      List of order items (each with foodItemId, quantity,
-     *                        and
-     *                        selectedAdditions)
+     *                        and selectedAdditions)
+     * @param paymentInfo     Payment information (method and details)
+     * @param notes           Optional notes for the order
      * @return The created order
      */
     @Transactional
     public Order createOrder(User customer, Restaurant restaurant, Address deliveryAddress,
-            List<CreateOrderRequest.OrderItemRequest> orderItems) {
+            List<CreateOrderRequest.OrderItemRequest> orderItems, PaymentInfo paymentInfo, String notes) {
         if (orderItems == null || orderItems.isEmpty()) {
             throw new IllegalArgumentException("Order must contain at least one item");
         }
+
+        if (paymentInfo == null) {
+            throw new IllegalArgumentException("Payment information is required");
+        }
+
+        // Get appropriate payment strategy based on payment method
+        PaymentStrategy paymentStrategy = paymentStrategyFactory.getStrategy(paymentInfo.getPaymentMethod());
 
         // Get shipping price from restaurant (default to 0.0 if not set)
         Double shippingPrice = restaurant.getShippingPrice() != null ? restaurant.getShippingPrice() : 0.0;
@@ -91,14 +105,29 @@ public class OrderService {
             items.add(item);
         }
 
+        // Create a temporary order object for payment processing
+        Order tempOrder = new Order();
+        tempOrder.setTotalPrice(items.stream()
+                .filter(item -> item.getCalculatedPrice() != null)
+                .mapToDouble(OrderItem::getCalculatedPrice)
+                .sum() + shippingPrice);
+
+        // Process payment using strategy pattern
+        boolean paymentProcessed = paymentStrategy.processPayment(tempOrder, paymentInfo);
+        if (!paymentProcessed) {
+            throw new IllegalArgumentException("Payment processing failed");
+        }
+
         // Build order using Builder pattern: set fields → set items → set shipping →
-        // build
+        // set payment → set notes → build
         OrderBuilder builder = new OrderBuilder()
                 .forCustomer(customer)
                 .fromRestaurant(restaurant)
                 .toAddress(deliveryAddress)
                 .withItems(items) // Pass all items at once
-                .withShippingPrice(shippingPrice); // Set shipping price
+                .withShippingPrice(shippingPrice) // Set shipping price
+                .withPaymentInfo(paymentInfo) // Set payment information
+                .withNotes(notes); // Set optional notes
 
         // Build the order (Builder calculates total: itemsTotal + shippingPrice)
         Order order = builder.build();

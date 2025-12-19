@@ -1,5 +1,6 @@
 package com.example.demo.builder;
 
+import com.example.demo.dto.PaymentInfo;
 import com.example.demo.entity.*;
 import com.example.demo.enums.OrderStatus;
 
@@ -20,6 +21,8 @@ public class OrderBuilder {
     private Double shippingPrice = 0.0;
     private Double totalPrice = 0.0;
     private List<OrderItem> items = new ArrayList<>();
+    private PaymentInfo paymentInfo;
+    private String notes;
 
     public OrderBuilder forCustomer(User customer) {
         this.customer = customer;
@@ -72,6 +75,16 @@ public class OrderBuilder {
         return this;
     }
 
+    public OrderBuilder withPaymentInfo(PaymentInfo paymentInfo) {
+        this.paymentInfo = paymentInfo;
+        return this;
+    }
+
+    public OrderBuilder withNotes(String notes) {
+        this.notes = notes;
+        return this;
+    }
+
     public Order build() {
         // Validation Logic
         if (customer == null)
@@ -96,6 +109,14 @@ public class OrderBuilder {
         order.setItems(items);
         order.setCreatedAt(LocalDateTime.now());
 
+        // Set payment method from paymentInfo (if provided)
+        if (paymentInfo != null) {
+            order.setPaymentMethod(paymentInfo.getPaymentMethod());
+        }
+
+        // Set notes (optional)
+        order.setNotes(notes);
+
         // Link bidirectional relationship
         for (OrderItem item : items) {
             item.setOrder(order);
@@ -104,4 +125,3 @@ public class OrderBuilder {
         return order;
     }
 }
-

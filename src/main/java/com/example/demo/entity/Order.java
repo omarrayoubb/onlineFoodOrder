@@ -3,6 +3,7 @@ package com.example.demo.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import com.example.demo.enums.OrderStatus;
+import com.example.demo.enums.PaymentMethod;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,14 @@ public class Order {
     private Double totalPrice;
     private Double shippingPrice; // Shipping/delivery fee
     private LocalDateTime createdAt;
+
+    // Payment
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
+
+    // Notes
+    @Column(columnDefinition = "TEXT")
+    private String notes;
 
     // Feedback
     private Integer feedbackStars;
@@ -140,5 +149,21 @@ public class Order {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 }

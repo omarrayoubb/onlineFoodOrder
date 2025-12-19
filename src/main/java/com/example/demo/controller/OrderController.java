@@ -50,7 +50,13 @@ public class OrderController {
                     .orElseThrow(() -> new IllegalArgumentException("Address not found"));
 
             // Create order using decorator pattern and builder pattern
-            Order order = orderService.createOrder(customer, restaurant, address, request.getItems());
+            Order order = orderService.createOrder(
+                    customer, 
+                    restaurant, 
+                    address, 
+                    request.getItems(),
+                    request.getPaymentInfo(),
+                    request.getNotes());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(order);
         } catch (IllegalArgumentException e) {

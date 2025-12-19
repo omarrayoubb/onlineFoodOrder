@@ -3,8 +3,10 @@ package com.example.demo.service;
 import com.example.demo.dto.DashboardData;
 import com.example.demo.entity.User;
 import com.example.demo.entity.Order;
+import com.example.demo.entity.Restaurant;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.repository.OrderRepository;
+import com.example.demo.repository.RestaurantRepository;
 import com.example.demo.util.PasswordUtil;
 import com.example.demo.auth.JwtTokenUtil;
 import org.springframework.stereotype.Service;
@@ -17,11 +19,14 @@ import java.util.Map;
 public class CustomerService extends AuthenticationService {
 
     private final OrderRepository orderRepository;
+    private final RestaurantRepository restaurantRepository;
 
     public CustomerService(UserRepository userRepository, PasswordUtil passwordUtil, 
-                          JwtTokenUtil jwtTokenUtil, OrderRepository orderRepository) {
+                          JwtTokenUtil jwtTokenUtil, OrderRepository orderRepository,
+                          RestaurantRepository restaurantRepository) {
         super(userRepository, passwordUtil, jwtTokenUtil);
         this.orderRepository = orderRepository;
+        this.restaurantRepository = restaurantRepository;
     }
 
     @Override
@@ -32,12 +37,17 @@ public class CustomerService extends AuthenticationService {
         // Get all orders made by this customer
         List<Order> orders = orderRepository.findByCustomerId(userId);
 
+        // Get all restaurants (simple fields for browsing)
+        List<Restaurant> restaurants = restaurantRepository.findAll();
+
         Map<String, Object> data = new HashMap<>();
         data.put("userId", userId);
         data.put("userName", user.getName());
         data.put("userEmail", user.getEmail());
         data.put("orders", orders);
         data.put("totalOrders", orders.size());
+        data.put("restaurants", restaurants);
+        data.put("totalRestaurants", restaurants.size());
 
         return new DashboardData(data);
     }
