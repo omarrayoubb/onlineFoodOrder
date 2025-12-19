@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import com.example.demo.enums.UserRole;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String passwordHash;
 
     private String name;
@@ -26,6 +28,7 @@ public class User {
     private UserRole userRole;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Address> addresses = new ArrayList<>();
 
     public User() {
@@ -93,7 +96,6 @@ public class User {
     public List<Address> getAddresses() {
         return addresses;
     }
-
 
     public void addAddress(Address address) {
         addresses.add(address);

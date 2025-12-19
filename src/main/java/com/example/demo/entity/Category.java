@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +17,17 @@ public class Category {
 
     @ManyToOne
     @JoinColumn(name = "restaurant_id")
+    @JsonIgnore
     private Restaurant restaurant;
 
     // --- COMPOSITE PATTERN: Self Reference ---
     @ManyToOne
     @JoinColumn(name = "parent_category_id")
+    @JsonIgnore
     private Category parentCategory;
 
     @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Category> subCategories = new ArrayList<>();
     // ------------------------------------------
 

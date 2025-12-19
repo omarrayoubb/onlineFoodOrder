@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,24 +13,55 @@ public class Restaurant extends User {
     private String description;
     private Double avgRating;
     private String deliveryTimeEst;
+    private Double shippingPrice; // Delivery/shipping fee for this restaurant
 
     // Directly links to Categories (No Menu Table)
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Category> categories = new ArrayList<>();
 
     // --- CONSTRUCTORS ---
-    public Restaurant() {}
+    public Restaurant() {
+    }
 
     // --- GETTERS & SETTERS ---
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getDescription() {
+        return description;
+    }
 
-    public Double getAvgRating() { return avgRating; }
-    public void setAvgRating(Double avgRating) { this.avgRating = avgRating; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    public String getDeliveryTimeEst() { return deliveryTimeEst; }
-    public void setDeliveryTimeEst(String deliveryTimeEst) { this.deliveryTimeEst = deliveryTimeEst; }
+    public Double getAvgRating() {
+        return avgRating;
+    }
 
-    public List<Category> getCategories() { return categories; }
-    public void setCategories(List<Category> categories) { this.categories = categories; }
+    public void setAvgRating(Double avgRating) {
+        this.avgRating = avgRating;
+    }
+
+    public String getDeliveryTimeEst() {
+        return deliveryTimeEst;
+    }
+
+    public void setDeliveryTimeEst(String deliveryTimeEst) {
+        this.deliveryTimeEst = deliveryTimeEst;
+    }
+
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
+    }
+
+    public Double getShippingPrice() {
+        return shippingPrice;
+    }
+
+    public void setShippingPrice(Double shippingPrice) {
+        this.shippingPrice = shippingPrice;
+    }
 }

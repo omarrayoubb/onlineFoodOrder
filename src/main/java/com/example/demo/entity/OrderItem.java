@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -15,6 +16,7 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private Order order;
 
     @ManyToOne
@@ -30,34 +32,84 @@ public class OrderItem {
     @Column(columnDefinition = "jsonb")
     private List<String> selectedAdditions;
 
-    private Double calculatedPrice; // Base Price + Additions
+    private Integer quantity = 1; // Default quantity is 1
+
+    private Double calculatedPrice; // Total price for this item (unitPrice * quantity)
 
     // --- CONSTRUCTORS ---
-    public OrderItem() {}
+    public OrderItem() {
+    }
 
     public OrderItem(FoodItem foodItem, List<String> selectedAdditions, Double calculatedPrice) {
         this.foodItem = foodItem;
         this.itemNameSnapshot = foodItem.getName();
         this.selectedAdditions = selectedAdditions;
+        this.quantity = 1;
+        this.calculatedPrice = calculatedPrice;
+    }
+
+    public OrderItem(FoodItem foodItem, List<String> selectedAdditions, Integer quantity, Double calculatedPrice) {
+        this.foodItem = foodItem;
+        this.itemNameSnapshot = foodItem.getName();
+        this.selectedAdditions = selectedAdditions;
+        this.quantity = quantity != null ? quantity : 1;
         this.calculatedPrice = calculatedPrice;
     }
 
     // --- GETTERS & SETTERS ---
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Order getOrder() { return order; }
-    public void setOrder(Order order) { this.order = order; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public FoodItem getFoodItem() { return foodItem; }
-    public void setFoodItem(FoodItem foodItem) { this.foodItem = foodItem; }
+    public Order getOrder() {
+        return order;
+    }
 
-    public String getItemNameSnapshot() { return itemNameSnapshot; }
-    public void setItemNameSnapshot(String itemNameSnapshot) { this.itemNameSnapshot = itemNameSnapshot; }
+    public void setOrder(Order order) {
+        this.order = order;
+    }
 
-    public List<String> getSelectedAdditions() { return selectedAdditions; }
-    public void setSelectedAdditions(List<String> selectedAdditions) { this.selectedAdditions = selectedAdditions; }
+    public FoodItem getFoodItem() {
+        return foodItem;
+    }
 
-    public Double getCalculatedPrice() { return calculatedPrice; }
-    public void setCalculatedPrice(Double calculatedPrice) { this.calculatedPrice = calculatedPrice; }
+    public void setFoodItem(FoodItem foodItem) {
+        this.foodItem = foodItem;
+    }
+
+    public String getItemNameSnapshot() {
+        return itemNameSnapshot;
+    }
+
+    public void setItemNameSnapshot(String itemNameSnapshot) {
+        this.itemNameSnapshot = itemNameSnapshot;
+    }
+
+    public List<String> getSelectedAdditions() {
+        return selectedAdditions;
+    }
+
+    public void setSelectedAdditions(List<String> selectedAdditions) {
+        this.selectedAdditions = selectedAdditions;
+    }
+
+    public Double getCalculatedPrice() {
+        return calculatedPrice;
+    }
+
+    public void setCalculatedPrice(Double calculatedPrice) {
+        this.calculatedPrice = calculatedPrice;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity != null ? quantity : 1;
+    }
 }
